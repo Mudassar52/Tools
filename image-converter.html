@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image to PNG Converter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.1rem;
+        }
+
+        .upload-area {
+            border: 3px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+        }
+
+        .upload-area.dragover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .preview-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .preview-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            position: relative;
+        }
+
+        .preview-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .image-info {
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .image-info span {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .settings {
+            margin-bottom: 1rem;
+        }
+
+        .settings label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .settings select, .settings input {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .convert-btn {
+            background: #4CAF50;
+            color: white;
+            width: 100%;
+        }
+
+        .convert-btn:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: rgba(255, 59, 59, 0.8);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff3b3b;
+            transform: scale(1.1);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Image to PNG Converter</h1>
+            <p>Convert any image format to PNG with custom settings</p>
+        </div>
+
+        <div class="upload-area" id="dropZone">
+            <i>📁</i>
+            <p>Drag & drop images here or click to select</p>
+            <input type="file" id="fileInput" multiple accept="image/*">
+        </div>
+
+        <div class="preview-area" id="previewArea"></div>
+
+        <div class="status" id="status"></div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+    </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const previewArea = document.getElementById('previewArea');
+        const status = document.getElementById('status');
+        const progressBar = document.getElementById('progressBar');
+
+        let images = [];
+
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const image = {
+                            id: Date.now() + Math.random(),
+                            file: file,
+                            preview: e.target.result,
+                            settings: {
+                                quality: 0.92,
+                                width: null,
+                                height: null,
+                                maintainAspectRatio: true
+                            }
+                        };
+                        images.push(image);
+                        createPreviewCard(image);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function createPreviewCard(image) {
+            const card = document.createElement('div');
+            card.className = 'preview-card';
+            card.innerHTML = `
+                <img src="${image.preview}" alt="Preview">
+                <div class="image-info">
+                    <span>Name: ${image.file.name}</span>
+                    <span>Size: ${formatSize(image.file.size)}</span>
+                    <span>Type: ${image.file.type}</span>
+                </div>
+                <div class="settings">
+                    <label>Quality (1-100)</label>
+                    <input type="number" min="1" max="100" value="92" 
+                        onchange="updateSettings(${image.id}, 'quality', this.value / 100)">
+                    
+                    <label>Width (optional)</label>
+                    <input type="number" min="1" placeholder="Auto" 
+                        onchange="updateSettings(${image.id}, 'width', this.value)">
+                    
+                    <label>Height (optional)</label>
+                    <input type="number" min="1" placeholder="Auto" 
+                        onchange="updateSettings(${image.id}, 'height', this.value)">
+                    
+                    <label>
+                        <input type="checkbox" checked 
+                            onchange="updateSettings(${image.id}, 'maintainAspectRatio', this.checked)">
+                        Maintain aspect ratio
+                    </label>
+                </div>
+                <button class="btn convert-btn" onclick="convertImage(${image.id})">
+                    Convert to PNG
+                </button>
+                <button class="remove-btn" onclick="removeImage(${image.id})">×</button>
+            `;
+            previewArea.appendChild(card);
+        }
+
+        function updateSettings(id, setting, value) {
+            const image = images.find(img => img.id === id);
+            if (image) {
+                image.settings[setting] = value;
+            }
+        }
+
+        function convertImage(id) {
+            const image = images.find(img => img.id === id);
+            if (!image) return;
+
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+
+            img.onload = () => {
+                // Calculate dimensions
+                let width = image.settings.width || img.width;
+                let height = image.settings.height || img.height;
+
+                if (image.settings.maintainAspectRatio) {
+                    if (image.settings.width) {
+                        height = (img.height / img.width) * width;
+                    } else if (image.settings.height) {
+                        width = (img.width / img.height) * height;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and convert
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                canvas.toBlob((blob) => {
+                    // Create download link
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = image.file.name.replace(/\.[^/.]+$/, '') + '.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    status.textContent = 'Conversion complete!';
+                    progressBar.style.width = '100%';
+                    setTimeout(() => {
+                        status.textContent = '';
+                        progressBar.style.width = '0%';
+                    }, 2000);
+                }, 'image/png', image.settings.quality);
+            };
+
+            img.src = image.preview;
+            status.textContent = 'Converting...';
+            progressBar.style.width = '50%';
+        }
+
+        function removeImage(id) {
+            images = images.filter(img => img.id !== id);
+            const card = previewArea.querySelector(`[onclick*="${id}"]`).closest('.preview-card');
+            card.remove();
+        }
+
+        function formatSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+    </script>
+</div>
+</body>
+</html>
