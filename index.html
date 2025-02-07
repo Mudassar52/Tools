@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI YouTube Title Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #ff0000;
+            --primary-dark: #cc0000;
+            --secondary: #1a1a1a;
+            --accent: #606060;
+            --background: #f9f9f9;
+            --card: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--background);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        .header p {
+            color: var(--accent);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .generator-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .input-group {
+            margin-bottom: 2rem;
+        }
+
+        .input-group label {
+            display: block;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 0, 0, 0.1);
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .tag {
+            background: #f0f0f0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .generate-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .generate-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .results-container {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item {
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .result-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            margin-bottom: 0.5rem;
+            padding-right: 2rem;
+        }
+
+        .result-stats {
+            display: flex;
+            gap: 1rem;
+            color: var(--accent);
+            font-size: 0.9rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            color: var(--primary);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--secondary);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .generator-card, .results-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo">
+                <i class="fab fa-youtube"></i>
+            </div>
+            <h1>AI YouTube Title Generator</h1>
+            <p>Generate engaging, clickable titles for your YouTube videos using advanced AI</p>
+        </header>
+
+        <div class="generator-card">
+            <div class="input-group">
+                <label for="video-topic">What's your video about?</label>
+                <input type="text" id="video-topic" class="input-field" placeholder="E.g., iPhone 15 review, cooking pasta, travel vlog in Paris...">
+            </div>
+
+            <div class="input-group">
+                <label>Popular Categories</label>
+                <div class="tags-container">
+                    <span class="tag">Tutorial</span>
+                    <span class="tag">Review</span>
+                    <span class="tag">Vlog</span>
+                    <span class="tag">Gaming</span>
+                    <span class="tag">Tech</span>
+                    <span class="tag">Lifestyle</span>
+                    <span class="tag">Education</span>
+                    <span class="tag">Entertainment</span>
+                </div>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">
+                <i class="fas fa-magic"></i>
+                Generate Titles
+            </button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Generating creative titles...</p>
+        </div>
+
+        <div class="results-container" id="results">
+            <!-- Results will be dynamically added here -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Configuration
+        const API_KEY = 'sk-8d1ecbe5504e4572a2497304e483cf0b'; // Replace with your API key
+        const API_URL = 'https://platform.deepseek.com/api_keys';
+
+        // DOM Elements
+        const generateBtn = document.getElementById('generateBtn');
+        const topicInput = document.getElementById('video-topic');
+        const loadingDiv = document.getElementById('loading');
+        const resultsDiv = document.getElementById('results');
+        const toast = document.getElementById('toast');
+        const tags = document.querySelectorAll('.tag');
+
+        // Event Listeners
+        generateBtn.addEventListener('click', generateTitles);
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                topicInput.value = `${tag.textContent} - ${topicInput.value}`;
+            });
+        });
+
+        async function generateTitles() {
+            const topic = topicInput.value.trim();
+            
+            if (!topic) {
+                showToast('Please enter a video topic');
+                return;
+            }
+
+            showLoading(true);
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-3.5-turbo",
+                        messages: [{
+                            role: "system",
+                            content: "You are a YouTube title optimization expert. Generate 5 engaging, clickable titles that follow YouTube best practices."
+                        }, {
+                            role: "user",
+                            content: `Generate 5 engaging YouTube titles for a video about: ${topic}`
+                        }],
+                        temperature: 0.8
+                    })
+                });
+
+                const data = await response.json();
+                const titles = parseTitles(data.choices[0].message.content);
+                displayResults(titles);
+                showToast('Titles generated successfully!');
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error generating titles. Please try again.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function parseTitles(content) {
+            return content.split('\n')
+                .filter(line => line.trim())
+                .map(line => line.replace(/^\d+\.\s*/, ''));
+        }
+
+        function displayResults(titles) {
+            resultsDiv.innerHTML = titles.map(title => `
+                <div class="result-item">
+                    <h3 class="result-title">${title}</h3>
+                    <div class="result-stats">
+                        <span><i class="fas fa-chart-line"></i> High CTR Potential</span>
+                        <span><i class="fas fa-clock"></i> Optimal Length</span>
+                    </div>
+                    <button class="copy-btn" onclick="copyToClipboard('${title}')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showToast('Title copied to clipboard!'))
+                .catch(() => showToast('Failed to copy title'));
+        }
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            loadingDiv.style.display = show ? 'block' : 'none';
+            generateBtn.disabled = show;
+        }
+    </script>
+</body>
+</html>

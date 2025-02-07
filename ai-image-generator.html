@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Imagination Generator</title>
+    <style>
+        :root {
+            --primary-color: #6a11cb;
+            --secondary-color: #2575fc;
+            --background-color: #0f0c29;
+            --text-color: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, var(--background-color), #16213e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .generator-container {
+            width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generator-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, var(--primary-color));
+            animation: rotate 4s linear infinite;
+        }
+
+        .generator-container::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, var(--secondary-color));
+            animation: rotate 4s linear reverse infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .inner-container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .title {
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .input-container {
+            margin-bottom: 20px;
+        }
+
+        .prompt-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: var(--text-color);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: transform 0.3s;
+        }
+
+        .generate-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .image-container {
+            width: 100%;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body>
+    <div class="generator-container">
+        <div class="inner-container">
+            <h1 class="title">Imagination Generator</h1>
+            <div class="input-container">
+                <input type="text" id="prompt" class="prompt-input" placeholder="Describe your image...">
+            </div>
+            <button id="generateBtn" class="generate-btn">Generate Image</button>
+            <div id="imageContainer" class="image-container">
+                <p style="color: #8a8a8a;">Your image will appear here</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'YOUR_API_KEY_HERE';
+        const API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const prompt = document.getElementById('prompt').value;
+            const imageContainer = document.getElementById('imageContainer');
+
+            if (!prompt) {
+                alert('Please enter a description');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        n: 1,
+                        size: '512x512'
+                    })
+                });
+
+                const data = await response.json();
+                const imageUrl = data.data[0].url;
+
+                imageContainer.innerHTML = `
+                    <img src="${imageUrl}" alt="Generated Image">
+                `;
+            } catch (error) {
+                console.error('Image generation error:', error);
+                imageContainer.innerHTML = '<p style="color: red;">Failed to generate image</p>';
+            }
+        });
+    </script>
+</body>
+</html>
