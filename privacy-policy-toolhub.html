@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --secondary: #818cf8;
+            --bg-dark: #0f172a;
+            --text-light: #e2e8f0;
+            --text-dark: #1e293b;
+        }
+
+        body {
+            background: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* Modern Header */
+        .header {
+            background: linear-gradient(to right, rgba(99, 102, 241, 0.1), rgba(129, 140, 248, 0.1));
+            padding: 4rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Navigation Sidebar */
+        .container {
+            display: flex;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .sidebar {
+            width: 300px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+
+        .nav-menu {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-item {
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+
+        .nav-item i {
+            color: var(--primary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            max-width: 800px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .section h3 {
+            color: var(--secondary);
+            margin: 1.5rem 0 1rem;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+        }
+
+        .section ul {
+            margin: 1rem 0;
+            padding-left: 2rem;
+        }
+
+        .section li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-card i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .button {
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .button-primary {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .button-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Progress Indicator */
+        .progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
+
+    <header class="header">
+        <h1>Privacy Policy Toolhub</h1>
+        <p>Manage and understand your privacy settings</p>
+    </header>
+
+    <div class="container">
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <div class="nav-item active" onclick="scrollToSection('overview')">
+                    <i class="fas fa-home"></i>
+                    Overview
+                </div>
+                <div class="nav-item" onclick="scrollToSection('data-collection')">
+                    <i class="fas fa-database"></i>
+                    Data Collection
+                </div>
+                <div class="nav-item" onclick="scrollToSection('data-usage')">
+                    <i class="fas fa-chart-bar"></i>
+                    Data Usage
+                </div>
+                <div class="nav-item" onclick="scrollToSection('user-rights')">
+                    <i class="fas fa-user-shield"></i>
+                    Your Rights
+                </div>
+                <div class="nav-item" onclick="scrollToSection('security')">
+                    <i class="fas fa-lock"></i>
+                    Security
+                </div>
+                <div class="nav-item" onclick="scrollToSection('contact')">
+                    <i class="fas fa-envelope"></i>
+                    Contact Us
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <section id="overview" class="section">
+                <h2>Overview</h2>
+                <p>Welcome to our Privacy Policy Toolhub. This comprehensive guide explains how we collect, use, and protect your personal information.</p>
+                
+                <div class="info-cards">
+                    <div class="info-card">
+                        <i class="fas fa-shield-alt"></i>
+                        <h3>Data Protection</h3>
+                        <p>Your data is encrypted and securely stored</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-user-lock"></i>
+                        <h3>Privacy Controls</h3>
+                        <p>Full control over your privacy settings</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="data-collection" class="section">
+                <h2>Data Collection</h2>
+                <h3>Information We Collect</h3>
+                <ul>
+                    <li>Account information (name, email, etc.)</li>
+                    <li>Usage data and analytics</li>
+                    <li>Device information</li>
+                    <li>Cookies and tracking technologies</li>
+                </ul>
+
+                <div class="action-buttons">
+                    <button class="button button-primary">Manage Data</button>
+                    <button class="button button-secondary">Learn More</button>
+                </div>
+            </section>
+
+            <section id="data-usage" class="section">
+                <h2>Data Usage</h2>
+                <p>We use your data to:</p>
+                <ul>
+                    <li>Provide and improve our services</li>
+                    <li>Personalize your experience</li>
+                    <li>Communicate with you</li>
+                    <li>Ensure security and prevent fraud</li>
+                </ul>
+            </section>
+
+            <section id="user-rights" class="section">
+                <h2>Your Rights</h2>
+                <h3>You have the right to:</h3>
+                <ul>
+                    <li>Access your personal data</li>
+                    <li>Request data correction</li>
+                    <li>Delete your account</li>
+                    <li>Opt out of marketing communications</li>
+                </ul>
+            </section>
+
+            <section id="security" class="section">
+                <h2>Security Measures</h2>
+                <p>We implement various security measures to protect your data:</p>
+                <ul>
+                    <li>End-to-end encryption</li>
+                    <li>Regular security audits</li>
+                    <li>Secure data storage</li>
+                    <li>Access controls</li>
+                </ul>
+            </section>
+
+            <section id="contact" class="section">
+                <h2>Contact Us</h2>
+                <p>If you have any questions about our privacy policy, please contact us:</p>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <i class="fas fa-envelope"></i>
+                        <h3>Email</h3>
+                        <p>privacy@example.com</p>
+                    </div>
+                    <div class="info-card">
+                        <i class="fas fa-phone"></i>
+                        <h3>Phone</h3>
+                        <p>1-800-PRIVACY</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Smooth scroll to sections
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({
+                behavior: 'smooth'
+            });
+            updateActiveNavItem(id);
+        }
+
+        // Update active navigation item
+        function updateActiveNavItem(id) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`[onclick="scrollToSection('${id}')"]`).classList.add('active');
+        }
+
+        // Update progress bar
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.querySelector('.progress-bar').style.width = scrolled + '%';
+        });
+
+        // Highlight active section on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top >= 0 && rect.top <= 300) {
+                    updateActiveNavItem(section.id);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
